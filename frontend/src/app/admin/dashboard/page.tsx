@@ -1,3 +1,19 @@
+export default function AdminDashboard() {
+  return (
+    <div>
+      <h1>Admin Dashboard</h1>
+      <ul>
+        <li><a href="/admin/users">User Management</a></li>
+        <li><a href="/admin/courses">Manage Courses</a></li>
+        <li><a href="/admin/logs">View Logs</a></li>
+        <li><a href="/admin/analytics">Analytics</a></li>
+      </ul>
+    </div>
+  );
+}
+
+
+
 // src/app/admin/page.tsx
 export default function AdminDashboard() {
   return (
@@ -20,29 +36,3 @@ function StatBox({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-/*export default function AdminDashboard() {
-  return (
-    <div>
-      <h1>Admin Dashboard</h1>
-      <ul>
-        <li><a href="/admin/users">User Management</a></li>
-        <li><a href="/admin/courses">Manage Courses</a></li>
-        <li><a href="/admin/logs">View Logs</a></li>
-        <li><a href="/admin/analytics">Analytics</a></li>
-      </ul>
-    </div>
-  );
-}
-*/

@@ -1,16 +1,4 @@
-export default function UserManagement() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">User Management</h1>
-      <p>Manage student, faculty, and librarian accounts here.</p>
-    </div>
-  );
-}
-
-
-
-
-/*'use client';
+'use client';
 import { useEffect, useState } from 'react';
 
 export default function UserManagement() {
@@ -33,4 +21,15 @@ export default function UserManagement() {
     </div>
   );
 }
-*/
+
+
+
+export default function UserManagement() {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-4">User Management</h1>
+      <p>Manage student, faculty, and librarian accounts here.</p>
+    </div>
+  );
+}
+

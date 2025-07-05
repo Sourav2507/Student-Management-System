@@ -1,17 +1,4 @@
-export default function ManageCourses() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Manage Courses</h1>
-      <p>Add or update course details.</p>
-    </div>
-  );
-}
-
-
-
-
-/*'use client';
-
+'use client';
 import { useEffect, useState } from 'react';
 
 export default function CourseManagement() {
@@ -34,4 +21,12 @@ export default function CourseManagement() {
     </div>
   );
 }
-*/
+
+export default function ManageCourses() {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-4">Manage Courses</h1>
+      <p>Add or update course details.</p>
+    </div>
+  );
+}

@@ -1,15 +1,4 @@
-export default function Analytics() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Analytics</h1>
-      <p>Display charts and insights related to student performance and enrollment.</p>
-    </div>
-  );
-}
-
-
-
-/*'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 
@@ -30,4 +19,12 @@ export default function AnalyticsPage() {
     </div>
   );
 }
-*/
+
+export default function Analytics() {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-4">Analytics</h1>
+      <p>Display charts and insights related to student performance and enrollment.</p>
+    </div>
+  );
+}
