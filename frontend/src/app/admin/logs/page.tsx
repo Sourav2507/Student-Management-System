@@ -1,16 +1,4 @@
-export default function ViewLogs() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">System Logs</h1>
-      <p>Track recent system activities and user actions.</p>
-    </div>
-  );
-}
-
-
-
-
-/*'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 
@@ -34,4 +22,14 @@ export default function LogsPage() {
     </div>
   );
 }
-*/
+
+
+
+export default function ViewLogs() {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-4">System Logs</h1>
+      <p>Track recent system activities and user actions.</p>
+    </div>
+  );
+}
