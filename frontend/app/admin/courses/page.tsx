@@ -1,28 +1,8 @@
-export default function ManageCourses() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Manage Courses</h1>
-      <p>Add or update course details.</p>
-    </div>
-  );
-}
-
-<<<<<<< HEAD
-// Hello User
-=======
->>>>>>> 809de4a676ce73b1a21324e00cb6dce9f4a43422
-
-
-
-/*'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 
-<<<<<<< HEAD
-export default function CourseManagement() {
-=======
 export default function ManageCourses() {
->>>>>>> 809de4a676ce73b1a21324e00cb6dce9f4a43422
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
@@ -32,20 +12,7 @@ export default function ManageCourses() {
   }, []);
 
   return (
-<<<<<<< HEAD
-    <div>
-      <h2>Manage Courses</h2>
-      <ul>
-        {courses.map((course: any) => (
-          <li key={course._id}>{course.title}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-*/
-=======
-    <div className="relative min-h-screen flex flex-col bg-white font-[\'Public Sans\']">
+    <div className="relative min-h-screen flex flex-col bg-white font-['Public Sans']">
       <header className="flex items-center justify-between border-b px-10 py-3">
         <div className="flex items-center gap-4">
           <div className="size-4">
@@ -58,15 +25,13 @@ export default function ManageCourses() {
           </div>
           <h2 className="text-lg font-bold tracking-tight">Academics</h2>
         </div>
-        <div className="flex gap-8">
-          <nav className="flex gap-9 text-sm font-medium">
-            <a href="#">Dashboard</a>
-            <a href="#">Courses</a>
-            <a href="#">Students</a>
-            <a href="#">Instructors</a>
-            <a href="#">Departments</a>
-          </nav>
-        </div>
+        <nav className="flex gap-9 text-sm font-medium">
+          <a href="#">Dashboard</a>
+          <a href="#">Courses</a>
+          <a href="#">Students</a>
+          <a href="#">Instructors</a>
+          <a href="#">Departments</a>
+        </nav>
       </header>
 
       <main className="flex flex-1 flex-row gap-1 px-6 py-5 justify-center">
@@ -97,7 +62,7 @@ export default function ManageCourses() {
                 </tr>
               </thead>
               <tbody>
-                {courses.map((course) => (
+                {courses.map((course: any) => (
                   <tr key={course._id} className="border-t">
                     <td className="px-4 py-2 text-[#6a7681]">{course.code}</td>
                     <td className="px-4 py-2">{course.title}</td>
@@ -110,7 +75,6 @@ export default function ManageCourses() {
                   </tr>
                 ))}
               </tbody>
-
             </table>
           </section>
         </div>
@@ -150,5 +114,3 @@ export default function ManageCourses() {
     </div>
   );
 }
-*/
->>>>>>> 809de4a676ce73b1a21324e00cb6dce9f4a43422
