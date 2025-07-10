@@ -1,5 +1,6 @@
 'use client';
-import { Fragment } from "react";
+import Link from 'next/link';
+import { Fragment } from 'react';
 
 export default function Analytics() {
   return (
@@ -18,22 +19,23 @@ export default function Analytics() {
         </div>
         <nav className="flex flex-col gap-2">
           {[
-            { label: 'Users', icon: '👥' },
-            { label: 'Courses', icon: '📘' },
-            { label: 'Logs', icon: '📄' },
-            { label: 'Analytics', icon: '📊' },
+            { label: 'Dashboard', icon: '🏠', href: '/admin/dashboard' },
+            { label: 'Users', icon: '👥', href: '/admin/users' },
+            { label: 'Courses', icon: '📘', href: '/admin/courses' },
+            { label: 'Logs', icon: '📄', href: '/admin/logs' },
+            { label: 'Analytics', icon: '📊', href: '/admin/analytics' },
           ].map((item, i) => (
-            <div
-              key={i}
-              className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
-                item.label === 'Analytics'
-                  ? "bg-gray-100"
-                  : "hover:bg-gray-100 hover:scale-[1.02]"
-              }`}
-            >
-              <span className="text-xl">{item.icon}</span>
-              <span className="text-sm font-medium">{item.label}</span>
-            </div>
+            <Link href={item.href} key={i}>
+              <div
+                className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 cursor-pointer ${item.label === 'Dashboard'
+                    ? 'bg-gray-100'
+                    : 'hover:bg-gray-100 hover:scale-[1.02]'
+                  }`}
+              >
+                <span className="text-xl">{item.icon}</span>
+                <span className="text-sm font-medium">{item.label}</span>
+              </div>
+            </Link>
           ))}
         </nav>
       </aside>
@@ -98,9 +100,11 @@ export default function Analytics() {
                 <tr key={i} className="border-t hover:bg-gray-50 hover:scale-[1.01]">
                   <td className="px-6 py-4">{row.metric}</td>
                   <td className="px-6 py-4">{row.value}</td>
-                  <td className={`px-6 py-4 font-medium ${
-                    row.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
-                  }`}>
+                  <td
+                    className={`px-6 py-4 font-medium ${
+                      row.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
+                    }`}
+                  >
                     {row.change}
                   </td>
                 </tr>

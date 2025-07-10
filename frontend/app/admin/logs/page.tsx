@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 export default function ViewLogs() {
   const [logs, setLogs] = useState([]);
@@ -26,23 +27,27 @@ export default function ViewLogs() {
           <h1 className="text-lg font-semibold">Acme University</h1>
         </div>
         <nav className="flex flex-col gap-2">
-          {["Users", "Courses", "Logs", "Analytics"].map((item, i) => (
-            <div
-              key={i}
-              className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
-                item === 'Logs' ? 'bg-gray-100' : 'hover:bg-gray-100 hover:scale-[1.02]'
-              }`}
-            >
-              <span className="text-xl">
-                {item === 'Users' && '👥'}
-                {item === 'Courses' && '📘'}
-                {item === 'Logs' && '📄'}
-                {item === 'Analytics' && '📊'}
-              </span>
-              <span className="text-sm font-medium">{item}</span>
-            </div>
+          {[
+            { label: 'Dashboard', icon: '🏠', href: '/admin/dashboard' },
+            { label: 'Users', icon: '👥', href: '/admin/users' },
+            { label: 'Courses', icon: '📘', href: '/admin/courses' },
+            { label: 'Logs', icon: '📄', href: '/admin/logs' },
+            { label: 'Analytics', icon: '📊', href: '/admin/analytics' },
+          ].map((item, i) => (
+            <Link href={item.href} key={i}>
+              <div
+                className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 cursor-pointer ${item.label === 'Dashboard'
+                    ? 'bg-gray-100'
+                    : 'hover:bg-gray-100 hover:scale-[1.02]'
+                  }`}
+              >
+                <span className="text-xl">{item.icon}</span>
+                <span className="text-sm font-medium">{item.label}</span>
+              </div>
+            </Link>
           ))}
         </nav>
+
       </aside>
 
       {/* Main Content */}
