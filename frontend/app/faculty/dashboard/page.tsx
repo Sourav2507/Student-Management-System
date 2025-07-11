@@ -1,8 +1,21 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function FacultyDashboard() {
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    fetch('/api/faculty')
+      .then(res => res.json())
+      .then(data => setMessage(data.message || '✅ API responded'))
+      .catch(err => {
+        console.error("❌ Backend error:", err);
+        setMessage('⚠️ Failed to fetch API');
+      });
+  }, []);
+
   return (
     <div className="min-h-screen w-full flex font-sans bg-white text-[#121717] px-4 sm:px-8">
       {/* Sidebar */}
@@ -30,7 +43,8 @@ export default function FacultyDashboard() {
               key={i}
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
-                i === 0 ? 'bg-gray-100' : 'hover:bg-gray-100 hover:scale-[1.02]'} `}
+                i === 0 ? 'bg-gray-100' : 'hover:bg-gray-100 hover:scale-[1.02]'
+              } `}
             >
               <span className="text-xl">{item.icon}</span>
               <span className="text-sm font-medium">{item.label}</span>
@@ -42,6 +56,13 @@ export default function FacultyDashboard() {
       {/* Main Content */}
       <main className="flex-1 bg-gray-50 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold mb-6">Faculty Dashboard</h1>
+
+        {/* ✅ API Response */}
+        <div className="mb-6 p-4 rounded-md bg-green-100 border border-green-300 text-green-800">
+          {message}
+        </div>
+
+        {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {[
             { label: 'Add/Update Marks', img: 'https://cdn-icons-png.flaticon.com/512/3209/3209265.png' },

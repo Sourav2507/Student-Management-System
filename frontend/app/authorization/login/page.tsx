@@ -2,12 +2,38 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [form, setForm] = useState({ username: '', password: '' });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleLogin = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // needed for cookie
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        if (data.role === 'faculty') router.push('/faculty/dashboard');
+        else if (data.role === 'student') router.push('/student/dashboard');
+        else if (data.role === 'admin') router.push('/admin/dashboard');
+
+      } else {
+        alert(data.error || 'Login failed');
+      }
+    } catch (error) {
+      alert('Error logging in');
+    }
   };
 
   return (
@@ -45,7 +71,10 @@ export default function LoginPage() {
           </div>
 
           <div className="flex justify-center pt-6">
-            <button className="w-full rounded-xl h-12 px-6 bg-[#5e92c9] text-white font-bold">
+            <button
+              onClick={handleLogin}
+              className="w-full rounded-xl h-12 px-6 bg-[#5e92c9] text-white font-bold"
+            >
               Login
             </button>
           </div>
