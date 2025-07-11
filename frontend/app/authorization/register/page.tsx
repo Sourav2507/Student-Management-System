@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface Field {
   label: string;
@@ -10,52 +11,26 @@ interface Field {
 }
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [role, setRole] = useState('');
+  const [formData, setFormData] = useState<{ [key: string]: string }>({});
 
   const commonFields: Field[] = [
-    {
-      label: 'Name',
-      placeholder: 'Enter your full name',
-    },
-    {
-      label: 'Username',
-      placeholder: 'Choose a unique username',
-    },
-    {
-      label: 'Email',
-      placeholder: 'Enter your email address',
-    },
-    {
-      label: 'Password',
-      placeholder: 'Create a strong password',
-      type: 'password',
-    },
+    { label: 'Name', placeholder: 'Enter your full name' },
+    { label: 'Username', placeholder: 'Choose a unique username' },
+    { label: 'Email', placeholder: 'Enter your email address' },
+    { label: 'Password', placeholder: 'Create a strong password', type: 'password' },
   ];
 
   const studentFields: Field[] = [
-    {
-      label: 'Roll Number',
-      placeholder: 'Enter your roll number',
-    },
-    {
-      label: 'Branch',
-      placeholder: 'Enter your branch',
-    },
-    {
-      label: 'Semester',
-      placeholder: 'Enter your semester',
-    },
+    { label: 'Roll Number', placeholder: 'Enter your roll number' },
+    { label: 'Branch', placeholder: 'Enter your branch' },
+    { label: 'Semester', placeholder: 'Enter your semester' },
   ];
 
   const facultyFields: Field[] = [
-    {
-      label: 'Faculty ID',
-      placeholder: 'Enter your faculty ID',
-    },
-    {
-      label: 'Designation',
-      placeholder: 'Enter your designation',
-    },
+    { label: 'Faculty ID', placeholder: 'Enter your faculty ID' },
+    { label: 'Designation', placeholder: 'Enter your designation' },
   ];
 
   const selectedRoleFields =
@@ -65,6 +40,31 @@ export default function RegisterPage() {
 
   const firstColumnFields = combinedFields.filter((_, index) => index % 2 === 0);
   const secondColumnFields = combinedFields.filter((_, index) => index % 2 !== 0);
+
+  const handleRegister = async () => {
+    if (!role) return alert('Please select a role');
+
+    const payload = { ...formData, role };
+
+    const res = await fetch('http://localhost:5000/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert('Registration successful!');
+      router.push('/authorization/login');
+    } else {
+      alert(data.error || 'Registration failed');
+    }
+  };
+
+  const handleInputChange = (label: string, value: string) => {
+    const key = label.toLowerCase().replace(/\s/g, '');
+    setFormData((prev) => ({ ...prev, [key]: value }));
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans text-sm">
@@ -112,6 +112,7 @@ export default function RegisterPage() {
                   <input
                     type={field.type || 'text'}
                     placeholder={field.placeholder}
+                    onChange={(e) => handleInputChange(field.label, e.target.value)}
                     className="form-input rounded-xl border border-[#d4dbe2] bg-gray-50 p-3 placeholder:text-[#5c728a]"
                   />
                 </label>
@@ -125,6 +126,7 @@ export default function RegisterPage() {
                   <input
                     type={field.type || 'text'}
                     placeholder={field.placeholder}
+                    onChange={(e) => handleInputChange(field.label, e.target.value)}
                     className="form-input rounded-xl border border-[#d4dbe2] bg-gray-50 p-3 placeholder:text-[#5c728a]"
                   />
                 </label>
@@ -134,7 +136,10 @@ export default function RegisterPage() {
 
           {/* Submit Button */}
           <div className="flex justify-center pt-6">
-            <button className="w-full max-w-[480px] rounded-xl h-12 px-6 bg-[#5e92c9] text-white font-bold">
+            <button
+              onClick={handleRegister}
+              className="w-full max-w-[480px] rounded-xl h-12 px-6 bg-[#5e92c9] text-white font-bold"
+            >
               Register
             </button>
           </div>

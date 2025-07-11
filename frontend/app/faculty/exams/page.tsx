@@ -12,10 +12,12 @@ interface Exam {
   duration: string;
   totalMarks: number;
   instructions: string;
+  createdBy?: string;
 }
 
 export default function ExamManagement() {
   const [exams, setExams] = useState<Exam[]>([]);
+  const [loggedInUser, setLoggedInUser] = useState<{ username: string } | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState('');
   const [course, setCourse] = useState('');
@@ -28,26 +30,38 @@ export default function ExamManagement() {
   ]);
 
   useEffect(() => {
-    setExams([
-      {
-        _id: '686aa2a1a322797abe63a1cc',
-        title: 'Mid Term',
-        date: '2025-07-15T00:00:00.000+00:00',
-        subject: 'CS101',
-        department: 'Computer Science',
-        semester: 5,
-        duration: '1h 0m',
-        totalMarks: 2,
-        instructions: 'NOOOO CHEATINGGG.',
-      },
-    ]);
+    const fetchUserAndExams = async () => {
+      try {
+        const userRes = await fetch('http://localhost:5000/api/me', {
+          credentials: 'include',
+        });
+        const userData = await userRes.json();
+        if (userRes.ok) {
+          setLoggedInUser(userData);
+        }
+
+        const examRes = await fetch('http://localhost:5000/api/exams', {
+          credentials: 'include',
+        });
+        const examData = await examRes.json();
+        if (examRes.ok) {
+          setExams(examData);
+        } else {
+          console.error('Failed to fetch exams:', examData.error);
+        }
+      } catch (err) {
+        console.error('Error fetching data:', err);
+      }
+    };
+
+    fetchUserAndExams();
   }, []);
 
   const calculateDuration = (start: string, end: string): string => {
     if (!start || !end) return '';
     const [sh, sm] = start.split(':').map(Number);
     const [eh, em] = end.split(':').map(Number);
-    const totalMinutes = (eh * 60 + em) - (sh * 60 + sm);
+    const totalMinutes = eh * 60 + em - (sh * 60 + sm);
     const hrs = Math.floor(totalMinutes / 60);
     const mins = totalMinutes % 60;
     return `${hrs}h ${mins}m`;
@@ -98,6 +112,7 @@ export default function ExamManagement() {
       const res = await fetch('http://localhost:5000/api/exams', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(examData),
       });
 
@@ -113,6 +128,7 @@ export default function ExamManagement() {
         setInstructions('');
         setQuestions([{ question: '', options: [''], correctOption: 0 }]);
         setShowForm(false);
+        setExams((prev) => [data.exam, ...prev]);
       } else {
         alert('❌ Failed to submit exam: ' + data.error);
       }
@@ -130,7 +146,7 @@ export default function ExamManagement() {
             className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
             style={{
               backgroundImage:
-                "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBreH1rT7yO6QJye8Mv33l0HPptgroCYEv9wAIBQMJWndzu9mFPXp5RgVJ0EpC0W141Y34Nwp7m5-yaqlTajggTeT1KXGhWtm9oGDSSekaorSJyihbhhKPITW381P3ZgESZl60fu2QAjT2S9JPgBD_WwSz6AlfwWr0Lo7WpVIwTwfoA7vZbC5KJXVcGIJp6YBz0Se4XDZKbAFSIz8DVMhok9Iz7y7o5edlhjq-M6YIN7vPvutSIDAi0YP5NKuhsowAOXrqE2oH1cjsl')",
+                "url('https://lh3.googleusercontent.com/a-/AOh14Gg6EXAMPLE')",
             }}
           ></div>
           <h1 className="text-lg font-semibold">Faculty Panel</h1>
@@ -147,8 +163,10 @@ export default function ExamManagement() {
             <Link
               key={i}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 cursor-pointer ${i === 0 ? 'bg-gray-100' : 'hover:bg-gray-100 hover:scale-[1.02]'
-                } `}
+              className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 cursor-pointer ${item.href === '/faculty/exams'
+                  ? 'bg-gray-100'
+                  : 'hover:bg-gray-100 hover:scale-[1.02]'
+                }`}
             >
               <span className="text-xl">{item.icon}</span>
               <span className="text-sm font-medium">{item.label}</span>
@@ -158,21 +176,35 @@ export default function ExamManagement() {
       </aside>
 
       <main className="flex-1 bg-gray-50 p-8 overflow-y-auto">
+        {loggedInUser && (
+          <p className="text-sm text-gray-500 mb-2">
+            Logged in as: <span className="font-medium">{loggedInUser.username}</span>
+          </p>
+        )}
+
         <h1 className="text-3xl font-bold mb-6">Exams</h1>
 
         <div className="space-y-4 mb-6">
-          {exams.map((exam) => (
-            <div key={exam._id} className="border p-4 rounded-xl bg-white shadow-sm">
-              <h2 className="text-xl font-bold mb-1">{exam.title}</h2>
-              <p className="text-sm text-gray-600">
-                {exam.subject} | {exam.department} | Semester {exam.semester}
-              </p>
-              <p className="text-sm text-gray-600">
-                {new Date(exam.date).toLocaleDateString()} • {exam.duration} • {exam.totalMarks} Marks
-              </p>
-              <p className="text-sm mt-2 text-gray-500">Instructions: {exam.instructions}</p>
-            </div>
-          ))}
+          {exams.length > 0 ? (
+            exams.map((exam) => (
+              <div
+                key={exam._id}
+                className="border border-blue-500 p-4 rounded-xl bg-white shadow-sm"
+              >
+                <h2 className="text-xl font-bold mb-1">{exam.title}</h2>
+                <p className="text-sm text-gray-600">
+                  {exam.subject} | {exam.department} | Semester {exam.semester}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {new Date(exam.date).toLocaleDateString()} • {exam.duration} • {exam.totalMarks} Marks
+                </p>
+                <p className="text-sm mt-2 text-gray-500">Instructions: {exam.instructions}</p>
+                <p className="text-xs text-blue-600 mt-1">🧑‍🏫 Created by You</p>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-600">No exams created yet.</p>
+          )}
         </div>
 
         <button

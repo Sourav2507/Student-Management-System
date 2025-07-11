@@ -1,37 +1,46 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config(); // Load .env file
+const cookieParser = require("cookie-parser");
+require("dotenv").config();
+const connectDB = require("./config/db");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ Log the Mongo URI on server start
-console.log("MONGO_URI from .env:", process.env.MONGO_URI);
+// ✅ Connect to DB first
+connectDB();
 
 // ✅ Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true, // Allow cookies from frontend
+  })
+);
 app.use(express.json());
+app.use(cookieParser());
 
-// ✅ Request logger for debugging
+// ✅ Logger middleware for debugging
 app.use((req, res, next) => {
-  console.log(`[${req.method}] ${req.url}`);
+  console.log(`[${req.method}] ${req.originalUrl}`);
   next();
 });
 
-// ✅ Routes
+// ✅ Route handlers
+app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/faculty", require("./routes/facultyRoutes"));
 app.use("/api/exams", require("./routes/examRoutes"));
+app.use("/api/courses", require("./routes/courseRoutes"));
 
-// ✅ MongoDB connection
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log("✅ Connected to MongoDB");
-    app.listen(PORT, () => {
-      console.log(`✅ Server running on port ${PORT}`);
-    });
-  })
-  .catch(err => {
-    console.error("❌ MongoDB Connection Error:", err);
-  });
+// ✅ Catch-all for unknown routes (FIXED)
+// ✅ Fallback route (fixed)
+app.use((req, res) => {
+  res.status(404).json({ message: "API route not found" });
+});
+
+
+// ✅ Start server
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
