@@ -7,20 +7,20 @@ const connectDB = require("./config/db");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ Connect to DB first
+// ✅ Connect to MongoDB
 connectDB();
 
 // ✅ Middleware
 app.use(
   cors({
-    origin: "http://localhost:3000",
-    credentials: true, // Allow cookies from frontend
+    origin: "http://localhost:3000", // frontend origin
+    credentials: true, // for cookies
   })
 );
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ Logger middleware for debugging
+// ✅ Logger (optional, for debugging)
 app.use((req, res, next) => {
   console.log(`[${req.method}] ${req.originalUrl}`);
   next();
@@ -28,19 +28,16 @@ app.use((req, res, next) => {
 
 // ✅ Route handlers
 app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/admin", require("./routes/adminRoutes"));
+app.use("/api/admin", require("./routes/adminRoutes")); // ✅ includes /api/admin/users
 app.use("/api/faculty", require("./routes/facultyRoutes"));
 app.use("/api/exams", require("./routes/examRoutes"));
 app.use("/api/courses", require("./routes/courseRoutes"));
 app.use("/api/announcements", require("./routes/announcementRoutes"));
 
-
-// ✅ Catch-all for unknown routes (FIXED)
-// ✅ Fallback route (fixed)
+// ✅ Fallback route for undefined endpoints
 app.use((req, res) => {
   res.status(404).json({ message: "API route not found" });
 });
-
 
 // ✅ Start server
 app.listen(PORT, () => {

@@ -142,14 +142,16 @@ export default function ExamManagement() {
     }
   };
 
-  const navItems = [
-    { label: 'Dashboard', href: '/faculty/dashboard', icon: <Home size={18} /> },
-    { label: 'Add/Update Marks', href: '/faculty/marks', icon: <FileText size={18} /> },
-    { label: 'Add Attendance', href: '/faculty/attendance', icon: <ClipboardList size={18} /> },
-    { label: 'Create Exams', href: '/faculty/exams', icon: <CalendarCheck size={18} /> },
-    { label: 'View Submissions', href: '/faculty/submissions', icon: <BookOpen size={18} /> },
-    { label: 'Add Announcements', href: '/faculty/announcements', icon: <Megaphone size={18} /> },
-  ];
+const navItems = [
+  { label: 'Dashboard', href: '/faculty/dashboard', icon: <Home size={18} /> },
+  { label: 'Add/Update Marks', href: '/faculty/marks', icon: <FileText size={18} /> },
+  { label: 'Add Attendance', href: '/faculty/attendance', icon: <ClipboardList size={18} /> },
+  { label: 'Create Exams', href: '/faculty/exams', icon: <CalendarCheck size={18} /> },
+  { label: 'View Submissions', href: '/faculty/submissions', icon: <BookOpen size={18} /> },
+  { label: 'Add Announcements', href: '/faculty/announcements', icon: <Megaphone size={18} /> },
+  { label: 'Library', href: '/Library/add_books', icon: <BookOpen size={18} /> }, // ✅ New Item
+];
+
 
   if (loading || submitting) {
     return (
