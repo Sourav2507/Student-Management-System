@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -14,6 +14,13 @@ export default function RegisterPage() {
   const router = useRouter();
   const [role, setRole] = useState('');
   const [formData, setFormData] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState(false);        // for registration request
+  const [pageLoading, setPageLoading] = useState(true); // for page load
+
+  useEffect(() => {
+    const timer = setTimeout(() => setPageLoading(false), 700);
+    return () => clearTimeout(timer);
+  }, []);
 
   const commonFields: Field[] = [
     { label: 'Name', placeholder: 'Enter your full name' },
@@ -43,21 +50,27 @@ export default function RegisterPage() {
 
   const handleRegister = async () => {
     if (!role) return alert('Please select a role');
-
+    setLoading(true);
     const payload = { ...formData, role };
 
-    const res = await fetch('http://localhost:5000/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-    const data = await res.json();
-    if (res.ok) {
-      alert('Registration successful!');
-      router.push('/authorization/login');
-    } else {
-      alert(data.error || 'Registration failed');
+      const data = await res.json();
+      if (res.ok) {
+        alert('Registration successful!');
+        router.push('/authorization/login');
+      } else {
+        alert(data.error || 'Registration failed');
+      }
+    } catch (err) {
+      alert('Error registering user');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -65,6 +78,24 @@ export default function RegisterPage() {
     const key = label.toLowerCase().replace(/\s/g, '');
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
+
+  if (pageLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white flex-col gap-4">
+        <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-lg font-semibold text-blue-500 animate-pulse">Loading...</p>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white flex-col gap-4">
+        <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-lg font-semibold text-blue-500 animate-pulse">Registering you...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans text-sm">
@@ -118,7 +149,6 @@ export default function RegisterPage() {
                 </label>
               ))}
             </div>
-
             <div className="flex flex-col gap-4">
               {secondColumnFields.map((field, idx) => (
                 <label key={idx} className="flex flex-col">

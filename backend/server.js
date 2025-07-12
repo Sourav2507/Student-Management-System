@@ -32,6 +32,8 @@ app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/faculty", require("./routes/facultyRoutes"));
 app.use("/api/exams", require("./routes/examRoutes"));
 app.use("/api/courses", require("./routes/courseRoutes"));
+app.use("/api/announcements", require("./routes/announcementRoutes"));
+
 
 // ✅ Catch-all for unknown routes (FIXED)
 // ✅ Fallback route (fixed)
