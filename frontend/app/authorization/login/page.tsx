@@ -1,23 +1,32 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ username: '', password: '' });
+  const [loading, setLoading] = useState(false);         // For login request
+  const [pageLoading, setPageLoading] = useState(true);  // For page load
+
+  // Simulate page load
+  useEffect(() => {
+    const timer = setTimeout(() => setPageLoading(false), 700); // delay for effect
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleLogin = async () => {
+    setLoading(true);
     try {
       const res = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // needed for cookie
+        credentials: 'include',
         body: JSON.stringify(form),
       });
 
@@ -27,14 +36,33 @@ export default function LoginPage() {
         if (data.role === 'faculty') router.push('/faculty/dashboard');
         else if (data.role === 'student') router.push('/student/dashboard');
         else if (data.role === 'admin') router.push('/admin/dashboard');
-
       } else {
         alert(data.error || 'Login failed');
       }
     } catch (error) {
       alert('Error logging in');
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (pageLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white flex-col gap-4">
+        <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-lg font-semibold text-blue-500 animate-pulse">Loading...</p>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white flex-col gap-4">
+        <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-lg font-semibold text-blue-500 animate-pulse">Logging you in...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans text-sm">
