@@ -182,8 +182,7 @@ export default function AnnouncementsPage() {
               onClick={handlePublish}
               disabled={loading}
               className={`rounded-lg px-6 py-2 font-bold text-sm text-white transition ${loading ? 'bg-[#5a98d6] cursor-not-allowed' : 'bg-[#357dc9] hover:scale-105'
-                }`}
-            >
+                }`}  >
               {loading ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
