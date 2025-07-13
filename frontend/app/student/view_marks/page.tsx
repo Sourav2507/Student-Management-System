@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Home, User, Book, CalendarCheck2, MapPin, FileText } from 'lucide-react';
+import { Home, User, Book, CalendarCheck2, MapPin, FileText, Layers } from 'lucide-react';
 import Link from 'next/link';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
@@ -50,6 +50,10 @@ export default function ViewMarks() {
           <Link href="/student/exams" className="flex items-center gap-2 hover:text-purple-600">
             <FileText className="text-orange-500" /> Exams
           </Link>
+          <Link href="/student/register_course" className="flex items-center gap-2 text-black font-normal">
+  <Layers className="text-indigo-500" /> Register Course
+</Link>
+
         </nav>
       </aside>
 

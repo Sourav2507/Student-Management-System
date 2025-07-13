@@ -1,6 +1,6 @@
 'use client';
 
-import { User, Home, Book, CalendarCheck2, MapPin, FileText } from 'lucide-react';
+import { User, Home, Book, CalendarCheck2, MapPin, FileText, Layers } from 'lucide-react';
 import Link from 'next/link';
 
 const exams = [
@@ -29,6 +29,10 @@ export default function Exams() {
           <Link href="/student/exams" className="flex items-center gap-2 text-purple-600 font-semibold">
             <FileText className="text-orange-500" /> Exams
           </Link>
+          <Link href="/student/register_course" className="flex items-center gap-2 text-black font-normal">
+  <Layers className="text-indigo-500" /> Register Course
+</Link>
+
           
         </nav>
       </aside>

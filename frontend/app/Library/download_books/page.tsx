@@ -4,8 +4,11 @@ import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line
 } from 'recharts';
+import { useRouter } from 'next/navigation';
 
 export default function DownloadBooks() {
+  const router = useRouter();
+
   const pieData = [
     { name: 'E-books', value: 300 },
     { name: 'PDFs', value: 500 },
@@ -32,18 +35,26 @@ export default function DownloadBooks() {
 
   const pieColors = ['#FF6384', '#36A2EB', '#FFCE56'];
 
+  const menuItems = [
+    { label: "Add Books", icon: "📘", bg: "bg-blue-100", path: "/library/add_books" },
+    { label: "Download Books", icon: "⬇️", bg: "bg-green-100", path: "/library/download_books" },
+    { label: "View Borrowed Books", icon: "🔍", bg: "bg-yellow-100", path: "/library/view_borrowed" },
+    { label: "Issued Books", icon: "📖", bg: "bg-indigo-100", path: "/library/issued_books" },
+    { label: "Read Book", icon: "📚", bg: "bg-purple-100", path: "/library/read_book" },
+  ];
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-[#f1f5f9] to-[#e2e8f0] text-[#101419]" style={{ fontFamily: '"Public Sans", "Noto Sans", sans-serif' }}>
       
       {/* Sidebar */}
       <div className="w-64 p-6 flex flex-col gap-4 bg-white shadow-md">
         <h2 className="text-2xl font-bold pb-4">Download Dashboard</h2>
-        {[
-          { label: "Add Books", icon: "📘", bg: "bg-blue-100" },
-          { label: "Download Books", icon: "⬇️", bg: "bg-green-100" },
-          { label: "View Borrowed Books", icon: "🔍", bg: "bg-yellow-100" },
-        ].map((item, index) => (
-          <div key={index} className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded-lg cursor-pointer">
+        {menuItems.map((item, index) => (
+          <div
+            key={index}
+            onClick={() => router.push(item.path)}
+            className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded-lg cursor-pointer transition"
+          >
             <div className={`w-10 h-10 flex items-center justify-center rounded-lg ${item.bg}`}>
               <span>{item.icon}</span>
             </div>

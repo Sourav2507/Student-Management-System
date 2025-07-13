@@ -3,10 +3,21 @@
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   LineChart, Line, XAxis, YAxis, CartesianGrid,
-  BarChart, Bar
+  BarChart, Bar,
 } from 'recharts';
+import { useRouter } from 'next/navigation';
 
 export default function LibraryDashboard() {
+  const router = useRouter();
+
+  const menuItems = [
+    { label: "Add Books", icon: "📘", bg: "bg-blue-100", path: "/library/add_books" },
+    { label: "Download Books", icon: "⬇️", bg: "bg-green-100", path: "/library/download_books" },
+    { label: "View Borrowed Books", icon: "🔍", bg: "bg-yellow-100", path: "/library/view_borrowed" },
+    { label: "Issued Books", icon: "📖", bg: "bg-indigo-100", path: "/library/issued_books" },
+    { label: "Read Book", icon: "📚", bg: "bg-pink-100", path: "/library/read_book" },
+  ];
+
   const pieData = [
     { name: 'Fiction', value: 400 },
     { name: 'Non-Fiction', value: 300 },
@@ -32,19 +43,18 @@ export default function LibraryDashboard() {
   ];
 
   return (
-    <div
-      className="relative flex min-h-screen bg-gradient-to-br from-[#f9fafb] to-[#edf2f7] overflow-x-hidden"
-      style={{ fontFamily: '"Public Sans", "Noto Sans", sans-serif' }}
-    >
+    <div className="relative flex min-h-screen bg-gradient-to-br from-[#f9fafb] to-[#edf2f7] overflow-x-hidden"
+      style={{ fontFamily: '"Public Sans", "Noto Sans", sans-serif' }}>
+      
       {/* Sidebar */}
       <div className="w-64 p-6 flex flex-col gap-4 bg-white shadow-md">
         <h2 className="text-[#101419] text-2xl font-bold pb-4">Library Dashboard</h2>
-        {[
-          { label: "Add Books", icon: "📘", bg: "bg-blue-100" },
-          { label: "Download Books", icon: "⬇️", bg: "bg-green-100" },
-          { label: "View Borrowed Books", icon: "🔍", bg: "bg-yellow-100" },
-        ].map((item, index) => (
-          <div key={index} className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded-lg cursor-pointer">
+        {menuItems.map((item, index) => (
+          <div
+            key={index}
+            onClick={() => router.push(item.path)}
+            className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded-lg cursor-pointer transition"
+          >
             <div className={`flex items-center justify-center w-10 h-10 rounded-lg text-[#101419] ${item.bg}`}>
               <span>{item.icon}</span>
             </div>
