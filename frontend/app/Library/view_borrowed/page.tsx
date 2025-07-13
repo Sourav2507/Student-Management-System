@@ -13,8 +13,11 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { useRouter } from 'next/navigation';
 
 export default function ViewBorrowed() {
+  const router = useRouter();
+
   const borrowedBooks = [
     { title: 'Atomic Habits', borrower: 'Alice' },
     { title: 'Deep Work', borrower: 'Bob' },
@@ -43,6 +46,14 @@ export default function ViewBorrowed() {
     { genre: 'History', count: 5 },
   ];
 
+  const menuItems = [
+    { label: 'Add Books', icon: '📘', bg: 'bg-blue-100', path: '/library/add_books' },
+    { label: 'Download Books', icon: '⬇️', bg: 'bg-green-100', path: '/library/download_books' },
+    { label: 'View Borrowed Books', icon: '🔍', bg: 'bg-yellow-100', path: '/library/view_borrowed' },
+    { label: 'Issued Books', icon: '📖', bg: 'bg-indigo-100', path: '/library/issued_books' },
+    { label: 'Read Book', icon: '📚', bg: 'bg-purple-100', path: '/library/read_book' },
+  ];
+
   return (
     <div
       className="flex min-h-screen bg-gradient-to-br from-[#fffefb] to-[#f5f7fa] text-[#101419]"
@@ -51,18 +62,13 @@ export default function ViewBorrowed() {
       {/* Sidebar */}
       <div className="w-64 p-6 flex flex-col gap-4 bg-white shadow-md">
         <h2 className="text-2xl font-bold pb-4">Library Dashboard</h2>
-        {[
-          { label: 'Add Books', icon: '📘', bg: 'bg-blue-100' },
-          { label: 'Download Books', icon: '⬇️', bg: 'bg-green-100' },
-          { label: 'View Borrowed Books', icon: '🔍', bg: 'bg-yellow-100' },
-        ].map((item, index) => (
+        {menuItems.map((item, index) => (
           <div
             key={index}
-            className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded-lg cursor-pointer"
+            onClick={() => router.push(item.path)}
+            className="flex items-center gap-3 hover:bg-gray-100 p-2 rounded-lg cursor-pointer transition"
           >
-            <div
-              className={`w-10 h-10 flex items-center justify-center rounded-lg ${item.bg}`}
-            >
+            <div className={`w-10 h-10 flex items-center justify-center rounded-lg ${item.bg}`}>
               <span>{item.icon}</span>
             </div>
             <p className="text-base font-medium">{item.label}</p>
@@ -89,7 +95,7 @@ export default function ViewBorrowed() {
 
         {/* Charts Row */}
         <div className="grid md:grid-cols-3 gap-6">
-          {/* 📊 Pie Chart */}
+          {/* Pie Chart */}
           <div className="bg-white shadow rounded-2xl p-6 border border-[#d3dbe4]">
             <p className="text-lg font-medium mb-2">Borrowed Categories</p>
             <ResponsiveContainer width="100%" height={200}>
@@ -112,7 +118,7 @@ export default function ViewBorrowed() {
             </ResponsiveContainer>
           </div>
 
-          {/* 📈 Line Chart */}
+          {/* Line Chart */}
           <div className="bg-white shadow rounded-2xl p-6 border border-[#d3dbe4]">
             <p className="text-lg font-medium mb-2">Monthly Borrow Trend</p>
             <ResponsiveContainer width="100%" height={200}>
@@ -131,7 +137,7 @@ export default function ViewBorrowed() {
             </ResponsiveContainer>
           </div>
 
-          {/* 📊 Bar Chart */}
+          {/* Bar Chart */}
           <div className="bg-white shadow rounded-2xl p-6 border border-[#d3dbe4]">
             <p className="text-lg font-medium mb-2">Borrowed by Genre</p>
             <ResponsiveContainer width="100%" height={200}>
