@@ -3,6 +3,6 @@ const router = express.Router();
 const adminController = require("../controllers/adminController");
 
 router.get("/", adminController.getAdmins);
-// Add more routes for users, courses, logs, etc.
+router.get("/users", adminController.getAllUsers); // ✅ Add this
 
 module.exports = router;
