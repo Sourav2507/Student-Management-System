@@ -77,9 +77,6 @@ export default function StudentDashboard() {
           <Link href="/student/Exams" className="flex items-center gap-2 hover:text-purple-600">
             <Book className="text-orange-500" /> Exams
           </Link>
-          <Link href="/student/attendence" className="flex items-center gap-2 hover:text-purple-600">
-            <MapPin className="text-red-500" /> Attendance
-          </Link>
         </nav>
       </aside>
 
