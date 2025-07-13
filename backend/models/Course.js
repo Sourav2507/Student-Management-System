@@ -1,13 +1,19 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const CourseSchema = new mongoose.Schema({
+const courseSchema = new mongoose.Schema({
+  code: String,
   title: String,
-  description: String,
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
+  department: String,
+  credits: Number,
+  status: {
+    type: String,
+    enum: ["Active", "Inactive"],
+    default: "Active"
   },
+  assignedFaculty: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Course', CourseSchema);
+module.exports = mongoose.model("Course", courseSchema);

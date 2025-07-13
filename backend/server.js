@@ -27,12 +27,14 @@ app.use((req, res, next) => {
 });
 
 // ✅ Route handlers
+// ✅ Route handlers
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes")); // ✅ includes /api/admin/users
 app.use("/api/faculty", require("./routes/facultyRoutes"));
 app.use("/api/exams", require("./routes/examRoutes"));
 app.use("/api/courses", require("./routes/courseRoutes"));
 app.use("/api/announcements", require("./routes/announcementRoutes"));
+app.use("/api/logs", require("./routes/logRoutes")); // ✅ Add this line
 
 // ✅ Fallback route for undefined endpoints
 app.use((req, res) => {

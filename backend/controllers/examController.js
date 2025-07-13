@@ -1,6 +1,8 @@
 const Exam = require("../models/Exam");
+const User = require("../models/User");
+const Log = require("../models/Log"); // ⬅️ Add this line
 
-// Get exams created by logged-in faculty
+// ✅ Get exams created by logged-in faculty
 exports.getExams = async (req, res) => {
   try {
     const facultyId = req.user._id;
@@ -12,7 +14,7 @@ exports.getExams = async (req, res) => {
   }
 };
 
-// Create new exam
+// ✅ Create new exam
 exports.createExam = async (req, res) => {
   try {
     const {
@@ -45,6 +47,17 @@ exports.createExam = async (req, res) => {
     });
 
     await newExam.save();
+
+    // ✅ Fetch the faculty who created the exam
+    const faculty = await User.findById(req.user._id).select("name");
+
+    // ✅ Log the exam creation
+    await Log.create({
+      message: `New exam "${title}" created by ${faculty.name} (Faculty)`,
+      category: "Exam",
+      user: faculty._id,
+    });
+
     res.status(201).json({ message: "Exam created successfully", exam: newExam });
   } catch (err) {
     console.error("❌ Error saving exam:", err);

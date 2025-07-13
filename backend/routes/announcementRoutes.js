@@ -10,16 +10,17 @@ const fetchLoggedInUser = async (req, res, next) => {
   try {
     const whoamiRes = await fetch("http://localhost:5000/api/auth/whoami", {
       headers: {
-        cookie: req.headers.cookie, // Pass user session/cookies
+        cookie: req.headers.cookie, // Pass session cookie
       },
     });
 
     const userData = await whoamiRes.json();
+
     if (whoamiRes.ok) {
       req.user = userData;
       next();
     } else {
-      return res.status(401).json({ message: "Unauthorized. Cannot fetch user." });
+      return res.status(401).json({ message: "Unauthorized: cannot fetch user." });
     }
   } catch (err) {
     console.error("Error in fetchLoggedInUser middleware:", err);
@@ -27,14 +28,10 @@ const fetchLoggedInUser = async (req, res, next) => {
   }
 };
 
-// POST /api/announcements
-router.post("/", fetchLoggedInUser, (req, res, next) => {
-  // Attach username to request body
-  req.body.postedBy = req.user.username || "Unknown";
-  createAnnouncement(req, res);
-});
+// POST /api/announcements - with user info
+router.post("/", fetchLoggedInUser, createAnnouncement);
 
-// GET /api/announcements
+// GET /api/announcements - open to all
 router.get("/", getAnnouncements);
 
 module.exports = router;

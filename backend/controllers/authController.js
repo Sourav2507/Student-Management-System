@@ -1,8 +1,9 @@
 const User = require('../models/User');
+const Log = require('../models/Log'); // ⬅️ Add this
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Register Controller
+// ✅ Register Controller
 exports.register = async (req, res) => {
   const {
     name,
@@ -18,8 +19,11 @@ exports.register = async (req, res) => {
   } = req.body;
 
   try {
+    // Check for duplicate username
     const existing = await User.findOne({ username });
-    if (existing) return res.status(400).json({ error: 'Username already exists' });
+    if (existing) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -34,6 +38,14 @@ exports.register = async (req, res) => {
     });
 
     await user.save();
+
+    // ✅ Log the registration
+    await Log.create({
+      message: `${user.name} registered as ${role}`,
+      category: 'User',
+      user: user._id,
+    });
+
     res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
     console.error('❌ Register Error:', err);
@@ -52,15 +64,16 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: '1d',
-    });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
 
-    // ✅ Set token as HTTP-only cookie
     res.cookie('token', token, {
       httpOnly: true,
       sameSite: 'Lax',
-      secure: false, // Set to true in production with HTTPS
+      secure: false, // Use true in production
     });
 
     res.json({ message: 'Login successful', role: user.role });

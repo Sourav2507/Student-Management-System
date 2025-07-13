@@ -1,8 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { addCourse, getFacultyCourses } = require('../controllers/courseController');
+const {
+  addCourse,
+  getAllCourses,
+  getFacultyList
+} = require('../controllers/courseController');
 
-router.post('/add', addCourse);
-router.get('/my-courses', getFacultyCourses);
+// Admin-only routes
+router.post('/add', addCourse);            // Admin adds a course
+router.get('/all', getAllCourses);         // Admin views all courses
+router.get('/faculties', getFacultyList);  // Admin fetches faculty for assignment
 
 module.exports = router;
