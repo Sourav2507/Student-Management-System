@@ -7,7 +7,7 @@ import {
 } from 'recharts';
 import Link from 'next/link';
 import {
-  Home, User, Book, CalendarCheck2, MapPin, Mail, Hash, School,
+  Home, User, Book, CalendarCheck2, MapPin, Mail, Hash, School, Layers
 } from 'lucide-react';
 
 const pieDataAttendance = [
@@ -77,6 +77,10 @@ export default function StudentDashboard() {
           <Link href="/student/exams" className="flex items-center gap-2 hover:text-purple-600">
             <Book className="text-orange-500" /> Exams
           </Link>
+          <Link href="/student/register_course" className="flex items-center gap-2 text-black font-normal">
+  <Layers className="text-indigo-500" /> Register Course
+</Link>
+
         </nav>
       </aside>
 

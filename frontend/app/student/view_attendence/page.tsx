@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { User, Home, Book, CalendarCheck2, MapPin, Plus } from 'lucide-react';
+import { User, Home, Book, CalendarCheck2, MapPin, Plus, Layers } from 'lucide-react';
 import Link from 'next/link';
 import {
   PieChart, Pie, Cell,
@@ -64,6 +64,10 @@ export default function ViewAttendance() {
           <Link href="/student/exams" className="flex items-center gap-2 hover:text-purple-600">
             <Book className="text-orange-500" /> Exams
           </Link>
+          <Link href="/student/register_course" className="flex items-center gap-2 text-black font-normal">
+  <Layers className="text-indigo-500" /> Register Course
+</Link>
+
         </nav>
       </aside>
 
