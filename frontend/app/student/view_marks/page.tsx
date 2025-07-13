@@ -38,7 +38,7 @@ export default function ViewMarks() {
       <aside className="w-60 bg-white shadow-xl border-r border-gray-200 flex flex-col p-6 space-y-4">
         <h2 className="text-xl font-bold text-purple-700 mb-4">Student Menu</h2>
         <nav className="flex flex-col gap-4">
-          <Link href="/student/student_dashboard" className="flex items-center gap-2 hover:text-purple-600">
+          <Link href="/student/dashboard" className="flex items-center gap-2 hover:text-purple-600">
             <Home className="text-pink-500" /> Dashboard
           </Link>
           <Link href="/student/view_marks" className="flex items-center gap-2 text-purple-600 font-semibold">
@@ -47,7 +47,7 @@ export default function ViewMarks() {
           <Link href="/student/view_attendence" className="flex items-center gap-2 hover:text-purple-600">
             <CalendarCheck2 className="text-blue-500" /> Attendance
           </Link>
-          <Link href="/student/Exams" className="flex items-center gap-2 hover:text-purple-600">
+          <Link href="/student/exams" className="flex items-center gap-2 hover:text-purple-600">
             <FileText className="text-orange-500" /> Exams
           </Link>
         </nav>
