@@ -1,6 +1,6 @@
 const Course = require('../models/Course');
 const User = require('../models/User');
-const Log = require('../models/Log'); // ⬅️ Add this
+const Log = require('../models/Log');
 const jwt = require('jsonwebtoken');
 
 // ✅ Add new course (only Admin)
