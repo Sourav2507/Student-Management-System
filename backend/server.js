@@ -35,6 +35,8 @@ app.use("/api/exams", require("./routes/examRoutes"));
 app.use("/api/courses", require("./routes/courseRoutes"));
 app.use("/api/announcements", require("./routes/announcementRoutes"));
 app.use("/api/logs", require("./routes/logRoutes")); // ✅ Add this line
+app.use("/api/student", require("./routes/studentRoutes"));
+
 
 // ✅ Fallback route for undefined endpoints
 app.use((req, res) => {

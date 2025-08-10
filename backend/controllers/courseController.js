@@ -20,6 +20,7 @@ exports.addCourse = async (req, res) => {
       if (!user) return res.status(401).json({ error: 'User not found' });
       role = user.role;
     } else {
+      
       user = await User.findById(decoded.id || decoded.userId);
     }
 

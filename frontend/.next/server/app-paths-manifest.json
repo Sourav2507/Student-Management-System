@@ -1,8 +1,6 @@
 {
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js",
   "/authorization/login/page": "app/authorization/login/page.js",
-  "/faculty/announcements/page": "app/faculty/announcements/page.js",
-  "/faculty/attendance/page": "app/faculty/attendance/page.js",
-  "/student/view_marks/page": "app/student/view_marks/page.js",
-  "/student/dashboard/page": "app/student/dashboard/page.js",
-  "/authorization/register/page": "app/authorization/register/page.js"
+  "/student/dashboard/page": "app/student/dashboard/page.js"
 }
