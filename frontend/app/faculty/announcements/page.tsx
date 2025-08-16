@@ -8,12 +8,33 @@ export default function AnnouncementsPage() {
   const [course, setCourse] = useState('');
   const [audience, setAudience] = useState('');
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);        // Submit loader
-  const [pageLoading, setPageLoading] = useState(true); // Page loader
+  const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
+
+  const [coursesList, setCoursesList] = useState<any[]>([]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setPageLoading(false), 1000);
-    return () => clearTimeout(timer);
+    const fetchCoursesForFaculty = async () => {
+      try {
+        // Get logged-in user info
+        const userRes = await fetch('http://localhost:5000/api/auth/whoami', { credentials: 'include' });
+        const userData = await userRes.json();
+        if (userRes.ok && userData.role === 'faculty') {
+          const facultyId = userData._id;
+          // Fetch only assigned courses
+          const coursesRes = await fetch(`http://localhost:5000/api/courses/faculty/${facultyId}`, { credentials: 'include' });
+          const coursesData = await coursesRes.json();
+          setCoursesList(coursesData.courses || []);
+        } else {
+          setCoursesList([]);
+        }
+      } catch (err) {
+        console.error('Error loading courses:', err);
+        setCoursesList([]);
+      }
+      setPageLoading(false);
+    };
+    fetchCoursesForFaculty();
   }, []);
 
   const handlePublish = async () => {
@@ -21,18 +42,12 @@ export default function AnnouncementsPage() {
       alert('Please fill in all fields');
       return;
     }
-
     setLoading(true);
-
     try {
-      // ✅ Get logged-in user info
-      const userRes = await fetch('http://localhost:5000/api/auth/whoami', {
-        credentials: 'include',
-      });
+      const userRes = await fetch('http://localhost:5000/api/auth/whoami', { credentials: 'include' });
       const userData = await userRes.json();
       const postedBy = userData?.username || 'Unknown';
 
-      // ✅ Send announcement with postedBy
       const res = await fetch('http://localhost:5000/api/announcements', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -41,7 +56,6 @@ export default function AnnouncementsPage() {
       });
 
       const data = await res.json();
-
       if (res.ok) {
         alert('✅ Announcement published successfully!');
         setTitle('');
@@ -55,10 +69,8 @@ export default function AnnouncementsPage() {
       console.error('Error publishing announcement:', error);
       alert('Server error while publishing announcement');
     }
-
     setLoading(false);
   };
-
 
   const handleDiscard = () => {
     setTitle('');
@@ -81,6 +93,7 @@ export default function AnnouncementsPage() {
       {/* Sidebar */}
       <aside className="w-72 min-h-screen border-r border-gray-200 p-6">
         <div className="flex items-center gap-3 mb-8">
+          {/* unchanged menu bar */}
           <div
             className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
             style={{
@@ -103,9 +116,9 @@ export default function AnnouncementsPage() {
               key={i}
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 cursor-pointer ${item.href === '/faculty/announcements'
-                  ? 'bg-gray-100'
-                  : 'hover:bg-gray-100 hover:scale-[1.02]'
-                }`}
+                ? 'bg-gray-100'
+                : 'hover:bg-gray-100 hover:scale-[1.02]'
+              }`}
             >
               <span className="text-xl">{item.icon}</span>
               <span className="text-sm font-medium">{item.label}</span>
@@ -119,7 +132,6 @@ export default function AnnouncementsPage() {
         <div className="mb-6">
           <h1 className="text-3xl font-bold">Add Announcement</h1>
         </div>
-
         <div className="max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block font-medium mb-2">Title</label>
@@ -127,29 +139,30 @@ export default function AnnouncementsPage() {
               type="text"
               placeholder="Enter title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={e => setTitle(e.target.value)}
               className="w-full rounded-lg border border-[#d3dbe4] bg-gray-50 p-4 text-sm focus:outline-none"
             />
           </div>
-
           <div>
             <label className="block font-medium mb-2">Course</label>
             <select
               value={course}
-              onChange={(e) => setCourse(e.target.value)}
+              onChange={e => setCourse(e.target.value)}
               className="w-full rounded-lg border border-[#d3dbe4] bg-gray-50 p-4 text-sm focus:outline-none"
             >
               <option value="">Select Course</option>
-              <option value="Course 2">Course 2</option>
-              <option value="Course 3">Course 3</option>
+              {coursesList.map(courseObj => (
+                <option key={courseObj._id} value={courseObj.code}>
+                  {courseObj.title} ({courseObj.code})
+                </option>
+              ))}
             </select>
           </div>
-
           <div>
             <label className="block font-medium mb-2">Target Audience</label>
             <select
               value={audience}
-              onChange={(e) => setAudience(e.target.value)}
+              onChange={e => setAudience(e.target.value)}
               className="w-full rounded-lg border border-[#d3dbe4] bg-gray-50 p-4 text-sm focus:outline-none"
             >
               <option value="">Select Audience</option>
@@ -157,19 +170,15 @@ export default function AnnouncementsPage() {
               <option value="All Students">All Students</option>
             </select>
           </div>
-
-          {/* Message content spans both columns */}
           <div className="md:col-span-2">
             <label className="block font-medium mb-2">Message Content</label>
             <textarea
               placeholder="Enter message content"
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={e => setMessage(e.target.value)}
               className="w-full rounded-lg border border-[#d3dbe4] bg-gray-50 p-4 text-sm min-h-[120px] focus:outline-none"
             ></textarea>
           </div>
-
-          {/* Buttons span both columns */}
           <div className="md:col-span-2 flex justify-end gap-3">
             <button
               onClick={handleDiscard}
@@ -177,12 +186,11 @@ export default function AnnouncementsPage() {
             >
               Discard
             </button>
-
             <button
               onClick={handlePublish}
               disabled={loading}
-              className={`rounded-lg px-6 py-2 font-bold text-sm text-white transition ${loading ? 'bg-[#5a98d6] cursor-not-allowed' : 'bg-[#357dc9] hover:scale-105'
-                }`}  >
+              className={`rounded-lg px-6 py-2 font-bold text-sm text-white transition ${loading ? 'bg-[#5a98d6] cursor-not-allowed' : 'bg-[#357dc9] hover:scale-105'}`}
+            >
               {loading ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

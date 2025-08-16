@@ -28,6 +28,16 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/all", async (req, res) => {
+  try {
+    const exams = await Exam.find({}).lean();
+    res.json(exams);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch all exams" });
+  }
+});
+
 // POST: Create a new exam
 router.post("/", async (req, res) => {
   try {

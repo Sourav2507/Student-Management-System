@@ -3,25 +3,32 @@ const router = express.Router();
 const {
   addCourse,
   getAllCourses,
-  getFacultyList
+  getFacultyList,
+  deleteCourse
 } = require('../controllers/courseController');
-const Course = require('../models/Course'); // ensure you have the model
+const Course = require('../models/Course');
 
-// Admin-only routes
+// Add a new course
 router.post('/add', addCourse);
+
+// Get all courses
 router.get('/all', getAllCourses);
+
+// Get faculty list
 router.get('/faculties', getFacultyList);
 
-// Delete a course
-router.delete('/:id', async (req, res) => {
+// Delete a course by ID
+router.delete('/:id', deleteCourse);
+
+// *** NEW: Get only courses assigned to the specified faculty ***
+router.get('/faculty/:facultyId', async (req, res) => {
   try {
-    const deleted = await Course.findByIdAndDelete(req.params.id);
-    if (!deleted) {
-      return res.status(404).json({ error: "Course not found" });
-    }
-    res.json({ message: "Course deleted successfully" });
+    // Find all courses where assignedFaculty matches this faculty's MongoDB _id
+    const courses = await Course.find({ assignedFaculty: req.params.facultyId });
+    res.json({ courses });
   } catch (err) {
-    res.status(500).json({ error: "Failed to delete course" });
+    console.error('Error fetching faculty courses:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

@@ -1,4 +1,5 @@
 'use client';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
@@ -19,9 +20,16 @@ interface Exam {
   createdBy?: string;
 }
 
+interface Course {
+  _id: string;
+  code: string;
+  title: string;
+}
+
 export default function ExamManagement() {
   const [exams, setExams] = useState<Exam[]>([]);
-  const [loggedInUser, setLoggedInUser] = useState<{ username: string } | null>(null);
+  const [loggedInUser, setLoggedInUser] = useState<{ _id: string; username: string } | null>(null);
+  const [coursesList, setCoursesList] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -37,10 +45,20 @@ export default function ExamManagement() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userRes = await fetch('http://localhost:5000/api/me', { credentials: 'include' });
+        const userRes = await fetch('http://localhost:5000/api/auth/whoami', { credentials: 'include' });
         const userData = await userRes.json();
-        if (userRes.ok) setLoggedInUser(userData);
+        if (userRes.ok) {
+          setLoggedInUser(userData);
 
+          // Fetch only courses assigned to this faculty
+          if (userData.role === 'faculty') {
+            const coursesRes = await fetch(`http://localhost:5000/api/courses/faculty/${userData._id}`, { credentials: 'include' });
+            const coursesData = await coursesRes.json();
+            setCoursesList(coursesData.courses || []);
+          }
+        }
+
+        // Fetch exams
         const examRes = await fetch('http://localhost:5000/api/exams', { credentials: 'include' });
         const examData = await examRes.json();
         if (examRes.ok) setExams(examData);
@@ -89,9 +107,15 @@ export default function ExamManagement() {
   const handleFinalSubmit = async () => {
     if (questions.length < 1) return alert('Add at least one question.');
     const examData = {
-      title, subject: course, department: 'Computer Science',
-      semester: 5, date, duration: calculateDuration(startTime, endTime),
-      instructions, totalMarks: questions.length, questions
+      title,
+      subject: course, // This is now SUBJECT NAME (the course title)
+      department: 'Computer Science',
+      semester: 5,
+      date,
+      duration: calculateDuration(startTime, endTime),
+      instructions,
+      totalMarks: questions.length,
+      questions
     };
     try {
       setSubmitting(true);
@@ -142,16 +166,15 @@ export default function ExamManagement() {
     }
   };
 
-const navItems = [
-  { label: 'Dashboard', href: '/faculty/dashboard', icon: <Home size={18} /> },
-  { label: 'Add/Update Marks', href: '/faculty/marks', icon: <FileText size={18} /> },
-  { label: 'Add Attendance', href: '/faculty/attendance', icon: <ClipboardList size={18} /> },
-  { label: 'Create Exams', href: '/faculty/exams', icon: <CalendarCheck size={18} /> },
-  { label: 'View Submissions', href: '/faculty/submissions', icon: <BookOpen size={18} /> },
-  { label: 'Add Announcements', href: '/faculty/announcements', icon: <Megaphone size={18} /> },
-  { label: 'Library', href: '/Library/add_books', icon: <BookOpen size={18} /> }, // ✅ New Item
-];
-
+  const navItems = [
+    { label: 'Dashboard', href: '/faculty/dashboard', icon: <Home size={18} /> },
+    { label: 'Add/Update Marks', href: '/faculty/marks', icon: <FileText size={18} /> },
+    { label: 'Add Attendance', href: '/faculty/attendance', icon: <ClipboardList size={18} /> },
+    { label: 'Create Exams', href: '/faculty/exams', icon: <CalendarCheck size={18} /> },
+    { label: 'View Submissions', href: '/faculty/submissions', icon: <BookOpen size={18} /> },
+    { label: 'Add Announcements', href: '/faculty/announcements', icon: <Megaphone size={18} /> },
+    { label: 'Library', href: '/Library/add_books', icon: <BookOpen size={18} /> },
+  ];
 
   if (loading || submitting) {
     return (
@@ -232,29 +255,31 @@ const navItems = [
           <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-sm">
             <h2 className="text-xl font-bold mb-4">Create New Exam</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input type="text" placeholder="Exam Title" value={title} onChange={(e) => setTitle(e.target.value)} className="border p-2 rounded" />
-              <select value={course} onChange={(e) => setCourse(e.target.value)} className="border p-2 rounded">
+              <input type="text" placeholder="Exam Title" value={title} onChange={e => setTitle(e.target.value)} className="border p-2 rounded" />
+              <select value={course} onChange={e => setCourse(e.target.value)} className="border p-2 rounded">
                 <option value="">Select Course</option>
-                <option value="CS101">CS101 - Computer Science</option>
-                <option value="MA101">MA101 - Calculus</option>
-                <option value="PH101">PH101 - Physics</option>
+                {coursesList.map(courseObj => (
+                  <option key={courseObj._id} value={courseObj.title}>
+                    {courseObj.title} ({courseObj.code})
+                  </option>
+                ))}
               </select>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="border p-2 rounded" />
+              <input type="date" value={date} onChange={e => setDate(e.target.value)} className="border p-2 rounded" />
               <div className="flex flex-col md:flex-row gap-4">
-                <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="border p-2 rounded w-full" />
-                <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="border p-2 rounded w-full" />
+                <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="border p-2 rounded w-full" />
+                <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="border p-2 rounded w-full" />
               </div>
-              <textarea placeholder="Instructions" value={instructions} onChange={(e) => setInstructions(e.target.value)} className="border p-2 rounded col-span-2" />
+              <textarea placeholder="Instructions" value={instructions} onChange={e => setInstructions(e.target.value)} className="border p-2 rounded col-span-2" />
             </div>
 
             {/* Questions Section */}
             <div className="mt-6 space-y-4">
               {questions.map((q, qi) => (
                 <div key={qi} className="border p-4 rounded">
-                  <input className="w-full mb-2 p-2 border rounded" placeholder={`Question ${qi + 1}`} value={q.question} onChange={(e) => handleQuestionChange(qi, 'question', e.target.value)} />
+                  <input className="w-full mb-2 p-2 border rounded" placeholder={`Question ${qi + 1}`} value={q.question} onChange={e => handleQuestionChange(qi, 'question', e.target.value)} />
                   {q.options.map((opt, oi) => (
                     <div key={oi} className="flex items-center gap-2 mb-2">
-                      <input className="flex-1 p-2 border rounded" placeholder={`Option ${oi + 1}`} value={opt} onChange={(e) => handleOptionChange(qi, oi, e.target.value)} />
+                      <input className="flex-1 p-2 border rounded" placeholder={`Option ${oi + 1}`} value={opt} onChange={e => handleOptionChange(qi, oi, e.target.value)} />
                       <input type="radio" name={`correct-${qi}`} checked={q.correctOption === oi} onChange={() => handleQuestionChange(qi, 'correctOption', oi)} />
                     </div>
                   ))}
