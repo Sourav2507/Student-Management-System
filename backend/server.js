@@ -37,6 +37,7 @@ app.use("/api/courses", require("./routes/courseRoutes"));
 app.use("/api/announcements", require("./routes/announcementRoutes"));
 app.use("/api/logs", require("./routes/logRoutes"));
 app.use("/api/student", require("./routes/studentRoutes"));
+app.use("/api/attempts", require("./routes/attemptRoutes"));
 app.use("/api/registrations", require("./routes/registrationRoutes")); // <-- Supports course registration limit
 
 // ✅ Optional global error handler

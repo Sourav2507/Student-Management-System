@@ -6,15 +6,16 @@ import Link from 'next/link';
 
 interface Exam {
   _id: string;
-  subject: string; // This is the subject name (e.g. "C Programming")
+  subject: string;
   title: string;
   date: string;
-  time?: string;
+  startTime?: string;
+  endTime?: string;
 }
 interface Course {
   _id: string;
   code: string;
-  title: string; // This is the subject name
+  title: string;
 }
 
 export default function Exams() {
@@ -37,11 +38,9 @@ export default function Exams() {
     fetch(`http://localhost:5000/api/registrations/student/${studentId}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
-        // If backend populates "courses" with full course objects:
         if (Array.isArray(data.courses) && data.courses.length > 0 && typeof data.courses[0].title === 'string') {
           setRegisteredSubjectNames(data.courses.map((c: Course) => c.title));
         } else if (Array.isArray(data.courses)) {
-          // If just IDs, fetch all and extract by ID
           fetch('http://localhost:5000/api/courses/all', { credentials: 'include' })
             .then(res2 => res2.json())
             .then(allData => {
@@ -71,6 +70,15 @@ export default function Exams() {
   const filteredExams = exams.filter(
     exam => registeredSubjectNames.includes(exam.subject)
   );
+
+  // Helper: is exam currently live?
+  const isExamLive = (exam: Exam) => {
+    if (!exam.date || !exam.startTime || !exam.endTime) return false;
+    const now = new Date();
+    const start = new Date(`${exam.date}T${exam.startTime}`);
+    const end = new Date(`${exam.date}T${exam.endTime}`);
+    return now >= start && now <= end;
+  };
 
   if (loading) {
     return (
@@ -111,17 +119,41 @@ export default function Exams() {
           <p className="text-gray-700 mt-4">No upcoming exams for your registered subjects.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredExams.map((exam) => (
-              <div
-                key={exam._id}
-                className="bg-white rounded-xl shadow-md p-5 border-l-4 border-purple-300 hover:shadow-lg transition"
-              >
-                <h3 className="text-xl font-semibold text-purple-800">{exam.title}</h3>
-                <p className="text-gray-700 mt-2"><strong>Subject:</strong> {exam.subject}</p>
-                <p className="text-gray-700"><strong>Date:</strong> {exam.date ? new Date(exam.date).toLocaleDateString() : "N/A"}</p>
-                <p className="text-gray-700"><strong>Time:</strong> {exam.time || 'N/A'}</p>
-              </div>
-            ))}
+            {filteredExams.map((exam) => {
+              const live = isExamLive(exam);
+              return (
+                <div
+                  key={exam._id}
+                  className={`bg-white rounded-xl shadow-md p-5 border-l-4 border-purple-300 hover:shadow-lg transition 
+                    ${live ? "cursor-pointer hover:bg-purple-50" : "cursor-not-allowed opacity-70"}
+                  `}
+                  onClick={() => {
+                    if (live) window.open(`/student/exams/${exam._id}`, '_blank');
+                  }}
+                  tabIndex={live ? 0 : -1}
+                  aria-disabled={!live}
+                  role="button"
+                >
+                  <h3 className="text-xl font-semibold text-purple-800">{exam.title}</h3>
+                  <p className="text-gray-700 mt-2"><strong>Subject:</strong> {exam.subject}</p>
+                  <p className="text-gray-700">
+                    <strong>Date:</strong>{" "}
+                    {exam.date ? new Date(exam.date).toLocaleDateString() : "N/A"}
+                  </p>
+                  <p className="text-gray-700">
+                    <strong>Time:</strong>{" "}
+                    {exam.startTime && exam.endTime
+                      ? `${exam.startTime} - ${exam.endTime}`
+                      : "N/A"}
+                  </p>
+                  {live ? (
+                    <p className="text-green-600 text-sm mt-2 font-semibold">Click to Participate</p>
+                  ) : (
+                    <p className="text-orange-600 text-sm mt-2">Exam not live at this time.</p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </main>

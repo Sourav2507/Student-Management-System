@@ -5,7 +5,9 @@ const examSchema = new mongoose.Schema({
   subject: String,
   department: String,
   semester: Number,
-  date: Date,
+  date: String,          // Format: 'YYYY-MM-DD'
+  startTime: String,     // Format: 'HH:mm'
+  endTime: String,       // Format: 'HH:mm'
   duration: String,
   instructions: String,
   totalMarks: Number,
