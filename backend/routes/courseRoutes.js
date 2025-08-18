@@ -3,12 +3,33 @@ const router = express.Router();
 const {
   addCourse,
   getAllCourses,
-  getFacultyList
+  getFacultyList,
+  deleteCourse
 } = require('../controllers/courseController');
+const Course = require('../models/Course');
 
-// Admin-only routes
-router.post('/add', addCourse);            // Admin adds a course
-router.get('/all', getAllCourses);         // Admin views all courses
-router.get('/faculties', getFacultyList);  // Admin fetches faculty for assignment
+// Add a new course
+router.post('/add', addCourse);
+
+// Get all courses
+router.get('/all', getAllCourses);
+
+// Get faculty list
+router.get('/faculties', getFacultyList);
+
+// Delete a course by ID
+router.delete('/:id', deleteCourse);
+
+// *** NEW: Get only courses assigned to the specified faculty ***
+router.get('/faculty/:facultyId', async (req, res) => {
+  try {
+    // Find all courses where assignedFaculty matches this faculty's MongoDB _id
+    const courses = await Course.find({ assignedFaculty: req.params.facultyId });
+    res.json({ courses });
+  } catch (err) {
+    console.error('Error fetching faculty courses:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 module.exports = router;

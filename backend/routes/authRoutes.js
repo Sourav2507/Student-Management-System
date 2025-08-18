@@ -114,6 +114,40 @@ router.get('/whoami', async (req, res) => {
   }
 });
 
+// UPDATE PASSWORD (difficult-to-guess URL)
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { username, newPassword } = req.body;
+
+    if (!username || !newPassword) {
+      return res.status(400).json({ error: 'Username and new password are required' });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    console.error('Password update error:', err);
+    res.status(500).json({ error: 'Server error while updating password' });
+  }
+});
+
+// Debug route — only if needed
+router.post("/reset-password-debug", (req, res) => {
+  console.log("Headers:", req.headers);
+  console.log("Body:", req.body);
+  res.json({ debug: true });
+});
+
+
+
 // LOGOUT
 router.get('/logout', (req, res) => {
   res.clearCookie('token');

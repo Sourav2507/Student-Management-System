@@ -94,6 +94,19 @@ export default function ManageCourses() {
     }
   };
 
+  const handleDeleteCourse = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this course? This action cannot be undone.")) {
+      return;
+    }
+    try {
+      await axios.delete(`http://localhost:5000/api/courses/${id}`, { withCredentials: true });
+      setCourses(prev => prev.filter(course => course._id !== id));
+    } catch (err: any) {
+      console.error("Delete course error:", err.response?.data || err.message);
+      alert(`Failed to delete: ${err.response?.data?.error || err.message}`);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 via-blue-100 to-purple-100">
@@ -176,6 +189,7 @@ export default function ManageCourses() {
                   <th className="px-6 py-3">Credits</th>
                   <th className="px-6 py-3">Faculty</th>
                   <th className="px-6 py-3">Status</th>
+                  <th className="px-6 py-3 text-right">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -191,6 +205,14 @@ export default function ManageCourses() {
                         }`}>
                         {course.status}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button
+                        onClick={() => handleDeleteCourse(course._id!)}
+                        className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}

@@ -28,10 +28,27 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/all", async (req, res) => {
+  try {
+    const exams = await Exam.find({}).lean();
+    res.json(exams);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch all exams" });
+  }
+});
+
+router.get("/:examId", async (req, res) => {
+  const exam = await Exam.findById(req.params.examId);
+  if (!exam) return res.status(404).json({ error: "Exam not found" });
+  res.json(exam);
+});
+
+
 // POST: Create a new exam
 router.post("/", async (req, res) => {
   try {
-    const user = await getUserFromToken(req);
+    const user = await getUserFromToken(req);  // Your JWT auth logic
 
     const {
       title,
@@ -39,15 +56,13 @@ router.post("/", async (req, res) => {
       department,
       semester,
       date,
+      startTime,   // NEW
+      endTime,     // NEW
       duration,
       instructions,
       totalMarks,
       questions
     } = req.body;
-
-    if (!title || !subject || !department || !semester || !date || !duration || !questions || questions.length === 0) {
-      return res.status(400).json({ error: "Missing required fields or questions" });
-    }
 
     const newExam = new Exam({
       title,
@@ -55,13 +70,14 @@ router.post("/", async (req, res) => {
       department,
       semester,
       date,
+      startTime,   // NEW
+      endTime,     // NEW
       duration,
       instructions,
       totalMarks,
       questions,
       createdBy: user._id
     });
-
     await newExam.save();
     res.status(201).json({ message: "Exam created successfully", exam: newExam });
   } catch (err) {
