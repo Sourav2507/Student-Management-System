@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Attempt = require("../models/Attempt");
 const User = require("../models/User");
+const Exam = require("../models/Exam");
 const jwt = require("jsonwebtoken");
 
 // Helper to get user from cookie token
@@ -21,6 +22,25 @@ router.get('/me', async (req, res) => {
     const user = await getUserFromReq(req);
     const atts = await Attempt.find({ student: user._id }).lean();
     res.json(Array.isArray(atts) ? atts : []);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET all attempts for exams created by this faculty (for submissions dashboard)
+// GET /api/attempts/faculty_submissions
+router.get('/faculty_submissions', async (req, res) => {
+  try {
+    const user = await getUserFromReq(req);
+    // Find all exams created by this faculty
+    const exams = await Exam.find({ createdBy: user._id }).select('_id title subject date');
+    const examIds = exams.map(e => e._id);
+    // Find all attempts for these exams
+    const attempts = await Attempt.find({ exam: { $in: examIds } })
+      .populate('student', 'roll name')
+      .populate('exam', 'title subject date')
+      .lean();
+    res.json(Array.isArray(attempts) ? attempts : []);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

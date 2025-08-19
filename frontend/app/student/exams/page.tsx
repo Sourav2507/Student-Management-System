@@ -17,14 +17,18 @@ interface Course {
   code: string;
   title: string;
 }
+interface Registration {
+  _id: string;
+  studentId: string;
+  courseId: string;
+}
 
 export default function Exams() {
   const [exams, setExams] = useState<Exam[]>([]);
-  const [registeredSubjectNames, setRegisteredSubjectNames] = useState<string[]>([]);
+  const [registeredCourses, setRegisteredCourses] = useState<Course[]>([]);
   const [studentId, setStudentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 1. Get logged-in student's ObjectId
   useEffect(() => {
     fetch('http://localhost:5000/api/auth/whoami', { credentials: 'include' })
       .then(res => res.json())
@@ -32,30 +36,24 @@ export default function Exams() {
       .catch(() => setStudentId(null));
   }, []);
 
-  // 2. Fetch the subject names (titles) of registered courses
   useEffect(() => {
     if (!studentId) return;
     fetch(`http://localhost:5000/api/registrations/student/${studentId}`, { credentials: 'include' })
       .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data.courses) && data.courses.length > 0 && typeof data.courses[0].title === 'string') {
-          setRegisteredSubjectNames(data.courses.map((c: Course) => c.title));
-        } else if (Array.isArray(data.courses)) {
-          fetch('http://localhost:5000/api/courses/all', { credentials: 'include' })
-            .then(res2 => res2.json())
-            .then(allData => {
-              const allCourses: Course[] = allData.courses || [];
-              const courseIds = data.courses.map((c: any) => typeof c === 'string' ? c : c._id);
-              const subjectNames = allCourses.filter(c => courseIds.includes(c._id)).map(c => c.title);
-              setRegisteredSubjectNames(subjectNames);
-            });
-        } else {
-          setRegisteredSubjectNames([]);
+      .then(async data => {
+        let courseIds: string[] = [];
+        if (Array.isArray(data.courses)) {
+          courseIds = data.courses.map((c: any) => typeof c === 'string' ? c : c.courseId ?? c._id);
+        } else if (Array.isArray(data)) {
+          courseIds = data.map((reg: Registration) => reg.courseId);
         }
+        const coursesData = await fetch('http://localhost:5000/api/courses/all', { credentials: 'include' }).then(r => r.json());
+        const allCourses: Course[] = coursesData.courses || [];
+        const registered = allCourses.filter(c => courseIds.includes(c._id));
+        setRegisteredCourses(registered);
       });
   }, [studentId]);
 
-  // 3. Fetch all exams
   useEffect(() => {
     fetch('http://localhost:5000/api/exams/all', { credentials: 'include' })
       .then(res => res.json())
@@ -66,10 +64,13 @@ export default function Exams() {
       .finally(() => setLoading(false));
   }, []);
 
-  // 4. Filter exams: subject is in the student's registered subject names
-  const filteredExams = exams.filter(
-    exam => registeredSubjectNames.includes(exam.subject)
-  );
+  // Debug Output
+  useEffect(() => {
+    if (!loading) {
+      console.log("Registered courses (titles):", registeredCourses.map(c => c.title.trim().toLowerCase()));
+      console.log("Exams:", exams);
+    }
+  }, [registeredCourses, exams, loading]);
 
   // Helper: is exam currently live?
   const isExamLive = (exam: Exam) => {
@@ -77,8 +78,26 @@ export default function Exams() {
     const now = new Date();
     const start = new Date(`${exam.date}T${exam.startTime}`);
     const end = new Date(`${exam.date}T${exam.endTime}`);
+    // Debugging time comparison:
+    console.log("[EXAM LIVE CHECK]", {
+      title: exam.title,
+      subject: exam.subject,
+      now: now.toISOString(),
+      start: start.toISOString(),
+      end: end.toISOString(),
+      isLive: now >= start && now <= end
+    });
     return now >= start && now <= end;
   };
+
+  // Use lowercase and trimmed values for robust matching!
+  const registeredCourseTitles = registeredCourses.map(c => c.title.trim().toLowerCase());
+  // Show all exams for registered subjects (debug), not just live
+  const matchingExams = exams.filter(
+    exam => exam.subject && registeredCourseTitles.includes(exam.subject.trim().toLowerCase())
+  );
+  // To show only live exams, use:
+  const filteredExams = matchingExams.filter(isExamLive);
 
   if (loading) {
     return (
@@ -114,46 +133,60 @@ export default function Exams() {
       </aside>
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-auto">
-        <h1 className="text-3xl font-bold text-purple-700 mb-6">Your Upcoming Exams</h1>
+        <h1 className="text-3xl font-bold text-purple-700 mb-6">Active Exams for Your Registered Subjects</h1>
+
+        {/* List registered course names */}
+        {registeredCourses.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-2 text-purple-600">Your Registered Courses</h2>
+            <ul className="list-disc pl-5 text-gray-800">
+              {registeredCourses.map((course) => (
+                <li key={course._id}>{course.title} ({course.code})</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Debugging Output */}
+        <div className="mb-6 bg-purple-50 rounded p-4 text-xs text-gray-500">
+          <h2 className="text-purple-600 font-semibold mb-2">Debug Data</h2>
+          <pre>
+Registered course titles (match): {JSON.stringify(registeredCourseTitles)}
+Exams fetched: {JSON.stringify(exams, null, 2)}
+Matching Exams: {JSON.stringify(matchingExams, null, 2)}
+Live Exams: {JSON.stringify(filteredExams, null, 2)}
+          </pre>
+        </div>
+
         {filteredExams.length === 0 ? (
-          <p className="text-gray-700 mt-4">No upcoming exams for your registered subjects.</p>
+          <p className="text-gray-700 mt-4">
+            No active exams for your registered subjects. Check back during your exam slots.
+          </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredExams.map((exam) => {
-              const live = isExamLive(exam);
-              return (
-                <div
-                  key={exam._id}
-                  className={`bg-white rounded-xl shadow-md p-5 border-l-4 border-purple-300 hover:shadow-lg transition 
-                    ${live ? "cursor-pointer hover:bg-purple-50" : "cursor-not-allowed opacity-70"}
-                  `}
-                  onClick={() => {
-                    if (live) window.open(`/student/exams/${exam._id}`, '_blank');
-                  }}
-                  tabIndex={live ? 0 : -1}
-                  aria-disabled={!live}
-                  role="button"
-                >
-                  <h3 className="text-xl font-semibold text-purple-800">{exam.title}</h3>
-                  <p className="text-gray-700 mt-2"><strong>Subject:</strong> {exam.subject}</p>
-                  <p className="text-gray-700">
-                    <strong>Date:</strong>{" "}
-                    {exam.date ? new Date(exam.date).toLocaleDateString() : "N/A"}
-                  </p>
-                  <p className="text-gray-700">
-                    <strong>Time:</strong>{" "}
-                    {exam.startTime && exam.endTime
-                      ? `${exam.startTime} - ${exam.endTime}`
-                      : "N/A"}
-                  </p>
-                  {live ? (
-                    <p className="text-green-600 text-sm mt-2 font-semibold">Click to Participate</p>
-                  ) : (
-                    <p className="text-orange-600 text-sm mt-2">Exam not live at this time.</p>
-                  )}
-                </div>
-              );
-            })}
+            {filteredExams.map((exam) => (
+              <div
+                key={exam._id}
+                className="bg-white rounded-xl shadow-md p-5 border-l-4 border-purple-300 hover:shadow-lg transition cursor-pointer hover:bg-purple-50"
+                onClick={() => window.open(`/student/exams/${exam._id}`, '_blank')}
+                tabIndex={0}
+                role="button"
+              >
+                <h3 className="text-xl font-semibold text-purple-800">{exam.title}</h3>
+                <p className="text-gray-700 mt-2"><strong>Subject:</strong> {exam.subject}</p>
+                <p className="text-gray-700">
+                  <strong>Date:</strong>{" "}
+                  {exam.date ? new Date(exam.date).toLocaleDateString() : "N/A"}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Time:</strong>{" "}
+                  {exam.startTime && exam.endTime
+                    ? `${exam.startTime} - ${exam.endTime}`
+                    : "N/A"}
+                </p>
+                <p className="text-green-600 text-sm mt-2 font-semibold">Click to Participate</p>
+              </div>
+            ))}
           </div>
         )}
       </main>

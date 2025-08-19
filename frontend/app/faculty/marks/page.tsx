@@ -20,7 +20,6 @@ export default function MarksPage() {
         <nav className="flex flex-col gap-2">
           {[
             { label: 'Dashboard', icon: '🏠', href: '/faculty/dashboard' },
-            { label: 'Add/Update Marks', icon: '📝', href: '/faculty/marks' },
             { label: 'Add Attendance', icon: '📋', href: '/faculty/attendance' },
             { label: 'Create Exams', icon: '🗓️', href: '/faculty/exams' },
             { label: 'View Submissions', icon: '📑', href: '/faculty/submissions' },
