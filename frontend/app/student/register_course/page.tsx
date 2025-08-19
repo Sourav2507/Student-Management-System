@@ -4,10 +4,22 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Home, Book, CalendarCheck2, FileText, Layers } from 'lucide-react';
 
+// Types for the objects you fetch
+type Course = {
+  _id: string;
+  title: string;
+  code: string;
+  // add any others
+};
+type Registration = {
+  courseId: Course;
+  // add any others
+};
+
 export default function RegisterCourse() {
-  const [availableCourses, setAvailableCourses] = useState<any[]>([]);
+  const [availableCourses, setAvailableCourses] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState('');
-  const [registeredCourses, setRegisteredCourses] = useState<any[]>([]);
+  const [registeredCourses, setRegisteredCourses] = useState<Course[]>([]);
   const [studentId, setStudentId] = useState<string | null>(null);
 
   // Fetch logged-in user's ObjectId
@@ -17,22 +29,32 @@ export default function RegisterCourse() {
       .then(data => setStudentId(data._id));
   }, []);
 
+  // Fetch all available courses
   useEffect(() => {
     fetch('http://localhost:5000/api/courses/all')
       .then(res => res.json())
       .then(data => setAvailableCourses(data.courses || []));
   }, []);
 
+  // Fetch registrations (registered courses)
   useEffect(() => {
     if (studentId) {
       fetch(`http://localhost:5000/api/registrations/student/${studentId}`)
         .then(res => res.json())
-        .then(data => setRegisteredCourses(data.courses || []));
+        .then(data => {
+          // Each registration has a .courseId object!
+          const registrations: Registration[] = data.registrations || [];
+          setRegisteredCourses(registrations.map(reg => reg.courseId));
+        });
     }
   }, [studentId]);
 
+  // Register to course handler
   const handleRegister = async () => {
-    if (!selectedCourse || !studentId) return alert('Select a course and ensure you are logged in!');
+    if (!selectedCourse || !studentId) {
+      alert('Select a course and ensure you are logged in!');
+      return;
+    }
     const res = await fetch('http://localhost:5000/api/registrations/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -41,14 +63,16 @@ export default function RegisterCourse() {
     const data = await res.json();
     if (res.ok) {
       alert('Course registered!');
-      setRegisteredCourses([...registeredCourses, availableCourses.find(c => c._id === selectedCourse)]);
+      // Find full course object from availableCourses by id
+      const course = availableCourses.find(c => c._id === selectedCourse);
+      if (course) setRegisteredCourses([...registeredCourses, course]);
       setSelectedCourse('');
     } else {
       alert(data.message || 'Failed to register');
     }
   };
 
-  // Filter already registered courses
+  // Exclude already registered courses
   const availableToRegister = availableCourses.filter(
     course => !registeredCourses.some(reg => reg._id === course._id)
   );

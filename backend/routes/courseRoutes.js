@@ -1,29 +1,46 @@
 const express = require('express');
 const router = express.Router();
-const {
-  addCourse,
-  getAllCourses,
-  getFacultyList,
-  deleteCourse
-} = require('../controllers/courseController');
 const Course = require('../models/Course');
 
 // Add a new course
-router.post('/add', addCourse);
+router.post('/add', async (req, res) => {
+  try {
+    const course = await Course.create(req.body);
+    res.json({ course });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
 // Get all courses
-router.get('/all', getAllCourses);
+router.get('/all', async (req, res) => {
+  try {
+    const courses = await Course.find();
+    res.json({ courses });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
-// Get faculty list
-router.get('/faculties', getFacultyList);
+// Get faculty list (sample: you can customize based on your needs)
+router.get('/faculties', async (req, res) => {
+  // custom logic...
+});
 
 // Delete a course by ID
-router.delete('/:id', deleteCourse);
+router.delete('/:id', async (req, res) => {
+  try {
+    await Course.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
-// *** NEW: Get only courses assigned to the specified faculty ***
+// Get only courses assigned to the specified faculty
 router.get('/faculty/:facultyId', async (req, res) => {
   try {
-    // Find all courses where assignedFaculty matches this faculty's MongoDB _id
+    // Find courses where assignedFaculty matches the faculty's MongoDB _id
     const courses = await Course.find({ assignedFaculty: req.params.facultyId });
     res.json({ courses });
   } catch (err) {

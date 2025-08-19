@@ -203,11 +203,6 @@ export default function ExamManagement() {
       icon: <Home size={18} />,
     },
     {
-      label: "Add/Update Marks",
-      href: "/faculty/marks",
-      icon: <FileText size={18} />,
-    },
-    {
       label: "Add Attendance",
       href: "/faculty/attendance",
       icon: <ClipboardList size={18} />,
